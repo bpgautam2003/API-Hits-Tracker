@@ -11,7 +11,7 @@ const Dashboard = () => {
   const [method, setMethod] = useState('GET');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [chartType, setChartType] = useState('IP'); // new state for chart type
+  const [chartType, setChartType] = useState('IP');
 
   const COLORS = {
     Chrome: '#4285F4',
@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     processBarChartData(apiHits);
-  }, [chartType, apiHits]); // process data whenever chartType or apiHits change
+  }, [chartType, apiHits]); 
 
   const fetchApiHits = async () => {
     try {
