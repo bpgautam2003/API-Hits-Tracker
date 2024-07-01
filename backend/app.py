@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import datetime
+from sqlalchemy.dialects.postgresql import JSON
+import platform
 
 app = Flask(__name__)
 CORS(app)
@@ -13,27 +15,30 @@ class APIHit(db.Model):
     request_id = db.Column(db.String(255))
     request_type = db.Column(db.String(10))
     request_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    payload = db.Column(db.Text, nullable=True)
+    payload = db.Column(JSON, nullable=True)
     content_type = db.Column(db.String(50), nullable=True)
     ip_address = db.Column(db.String(50))
     os = db.Column(db.String(50))
     user_agent = db.Column(db.String(255))
 
-
 @app.route('/')
 def home():
     return 'Welcome to home'
     
-@app.route('/track', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/track', methods=['POST'])
 def track_api():
+    data = request.get_json()
+    endpoint = data.get('endpoint')
+    method = data.get('method')
+    
     api_hit = APIHit(
-        request_id=request.endpoint,
-        request_type=request.method,
+        request_id=endpoint,
+        request_type=method,
         request_time=datetime.datetime.utcnow(),
         payload=request.get_json() if request.is_json else None,
         content_type=request.headers.get('Content-Type'),
         ip_address=request.remote_addr,
-        os=request.user_agent.platform,
+        os=platform.system(),
         user_agent=request.user_agent.string
     )
     db.session.add(api_hit)
